@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Car LifeCycle</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+      html, body, .grid-container { height: 100%; margin: 0; }
+      .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-rows: 0.2fr 1.8fr 1fr;
+        gap: 1px 1px;
+        grid-template-areas: "navbar navbar navbar navbar" "cars_display cars_display cars_display cars_display" "options options options options";
+      }
+      .navbar { grid-area: navbar; }
+      .options { grid-area: options; }
+      .cars_display { grid-area: cars_display; }
+    </style>
+  </head>
+  <body> <!-- background="img.jpg" -->
+    <div class="grid-container">
+      <div class="navbar" style="margin-bottom: 10px;border: 0px;border-radius: 0px;">
+        <nav class="navbar navbar-inverse" style="border-radius: inherit;">
+          <div class="container-fluid">
+            <div class="navbar-header" style="display: flex;">
+              <a class="navbar-brand" href="#" style="padding: 0px;">
+                <img style="height: inherit;" src="https://employeecycle.com/wp-content/uploads/2019/05/lifecycle-1.png">
+              </a>
+              <div style="text-align: center;font-size: 35px;font-family: serif;color: whitesmoke;">Car LifeCycle</div>
+            </div>
+          </div>
+        </nav>
+      </div>
+      
+      <div class="options" style="overflow-x: hidden; overflow-y: auto; height: 15vw;" >
+        <ul class="nav nav-tabs">
+          <li id="Register_btn" onclick="Register_block()" role="presentation" class="active"><a href="#">Register Vehicle</a></li>
+          <li id="Search_btn" onclick="Search_block()" role="presentation"><a href="#">Search Vehicle</a></li>
+          <li id="Transfer_btn" onclick="Transfer_block()" role="presentation"><a href="#">Transfer Vehicle</a></li>
+        </ul>
+
+        <div id="Register" style="display: block;" >
+          <div class="panel-body" style="padding-top: 0px;">
+            <h4>Register</h4>
+            <input type="text" class="form-control" id="vin" placeholder="Vehicle Id" />
+            <input type="text" class="form-control" id="year" placeholder="Year" />
+            <input type="text" class="form-control" id="model" placeholder="Model" />
+            <input type="text" class="form-control" id="make" placeholder="Make" />
+            <input type="text" class="form-control" id="capacity" placeholder="CC Capacity" />
+            <button class="btn btn-primary" id="submitButton" type="button">Submit</button>
+          </div>
+        </div>
+
+        <div id="Search" style="display: none;">
+          <div class="panel-body" style="padding-top: 0px;" >
+            <h4>Search Bike</h4>
+            <strong>Owner</strong>: <span id="owneraddress"></span> <br/><br/>
+            <strong>VIN</strong>: <span id="vvin"></span> <br/><br/>
+            <strong>Make</strong>: <span id="vmake"></span> <br/><br/>
+            <strong>Model</strong>: <span id="vmodel"></span> <br/><br/>
+            <strong>Year</strong>: <span id="vyear"></span> <br/><br/>
+            <strong>Status</strong>: <span id="vstatus"></span> <br/><br/>
+            <strong>Capacity</strong>: <span id="vcapacity"></span> <br/><br/>
+            <strong>Price (ETH)</strong>: <span id="vprice"></span> <br/><br/>
+
+            <input type="text" class="form-control" id="vsvin" placeholder="Vehicle Identity Number" />
+            <button class="btn btn-primary" id="searchButton" type="button">Search</button>
+          </div>
+        </div>
+
+        <div id="Transfer" style="display: none;">
+          <div class="panel-body" style="padding-top: 0px;">
+            <h4>Transfer Vehicle</h4>
+            <input type="text" class="form-control" id="vtid" placeholder="Vehicle Identity Number" />
+            <input type="text" class="form-control" id="newOwnerAddress" placeholder="New Address" />
+            <button class="btn btn-primary" id="transferButton" type="button">Transfer</button>
+          </div>
+        </div>
+
+      </div>
+      
+      <div class="cars_display" style="overflow-x: hidden;overflow-y: auto;border-bottom: 2px solid whitesmoke;height: 58vh;" >
+        <div id="listedBikes" class="row">
+          <!-- Cars LOAD HERE -->
+        </div>
+      </div>
+
+      <div id="bikeTemplate" style="display: none;">
+        <div class="col-sm-6 col-md-6 col-lg-3" style="width: 24%;">
+          <div class="panel panel-default panel-pet" style="margin-bottom: 1px;" >
+            <div class="panel-heading" style="display: flex;">
+              <h3 class="panel-title" id="descTitle" style="padding-right: 10px;">Vehicle</h3><span class="badge badge-success owner-badge">Owner</span>
+            </div>
+            <div class="panel-body">
+              <img alt="100x100" data-src="holder.js/140x140" class="img-rounded img-center" style="height: 100px;" src="car.png" data-holder-rendered="true">
+              <br/><br/>
+              <strong>VIN</strong>: <span class="vin"></span><br/>
+              <strong>Year</strong>: <span class="year"></span><br/><br/>
+              <strong>Capacity - CC</strong>: <span class="capacity"></span><br/><br/>
+              <strong>Status</strong>: <span class="status"></span><br/><br/>
+              <strong>price (ETH)</strong>: <span class="price"></span><br/><br/>
+              <div class="section">
+                Price: <input type="text" class="sellPrice"/>
+                <button class="btn btn-primary btn-sellVehicle" data-id="0" disabled>Sell Vehicle</button>
+              </div>
+              <div class="section">
+                <button class="btn btn-primary btn-buyVehicle" data-id="0" data-price="0">Buy Vehicle</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/web3.min.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      function Register_block() {
+        var x = document.getElementById("Register");
+        var y = document.getElementById("Search");
+        var z = document.getElementById("Transfer");
+        var x_btn = document.getElementById("Register_btn");
+        var y_btn = document.getElementById("Search_btn");
+        var z_btn = document.getElementById("Transfer_btn");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+          y.style.display = "none";
+          z.style.display = "none";
+          x_btn.className = "active";
+          y_btn.className = "";
+          z_btn.className = "";
+        } else {
+          x.style.display = "none";
+          x_btn.className = "";
+        }
+      }
+      function Search_block() {
+        var x = document.getElementById("Search");
+        var y = document.getElementById("Register");
+        var z = document.getElementById("Transfer");
+        var x_btn = document.getElementById("Register_btn");
+        var y_btn = document.getElementById("Search_btn");
+        var z_btn = document.getElementById("Transfer_btn");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+          y.style.display = "none";
+          z.style.display = "none";
+          x_btn.className = "";
+          y_btn.className = "active";
+          z_btn.className = "";
+        } else {
+          x.style.display = "none";
+          y_btn.className = "";
+        }
+      }
+      function Transfer_block() {
+        var x = document.getElementById("Transfer");
+        var y = document.getElementById("Search");
+        var z = document.getElementById("Register");
+        var x_btn = document.getElementById("Register_btn");
+        var y_btn = document.getElementById("Search_btn");
+        var z_btn = document.getElementById("Transfer_btn");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+          y.style.display = "none";
+          z.style.display = "none";
+          x_btn.className = "";
+          y_btn.className = "";
+          z_btn.className = "active";
+        } else {
+          x.style.display = "none";
+          z_btn.className = "";
+        }
+      }
+      
+    </script>
+  </body>
+</html>
