@@ -92,15 +92,15 @@ library SafeMath {
 contract Car_lifeCycle is Owned, CircuitBreaker {
     using SafeMath for uint;
     uint[] public vins;
-    mapping(uint => Bike) public motorbikeMap;
-    uint public numMotorbikes;
+    mapping(uint => Vehicle) public VehicleMap;
+    uint public numVehicles;
     uint constant SALE_FEE_PERCENT = 5;
 
     constructor() public {
-        numMotorbikes = 0;
+        numVehicles = 0;
     }
 
-    event NewBike(uint _vin, address _owner);
+    event NewVehicle(uint _vin, address _owner);
     event TransferVehicle(uint _vin);
     event ForSale(uint _vin);
     event Sold(uint _vin);
@@ -108,7 +108,7 @@ contract Car_lifeCycle is Owned, CircuitBreaker {
 
     enum Status {RoadWorthy, ForSale, Financed}
 
-    struct Bike {
+    struct Vehicle {
         uint vin;
         uint year;
         string model;
@@ -125,96 +125,96 @@ contract Car_lifeCycle is Owned, CircuitBreaker {
     modifier checkValue(uint _vin) {
         //refund them after pay for item (why it is before, _ checks for logic before func)
         _;
-        uint _price = motorbikeMap[_vin].price;
+        uint _price = VehicleMap[_vin].price;
         uint amountToRefund = msg.value - _price;
-        motorbikeMap[_vin].buyer.transfer(amountToRefund);
+        VehicleMap[_vin].buyer.transfer(amountToRefund);
     }
 
     // Check car is set as for Sale by owner
     modifier forSale(uint _vin) {
-        require (motorbikeMap[_vin].status == Status.ForSale); _;
+        require (VehicleMap[_vin].status == Status.ForSale); _;
     }
 
     modifier roadWorthy(uint _vin) {
-        require (motorbikeMap[_vin].status == Status.RoadWorthy); _;
+        require (VehicleMap[_vin].status == Status.RoadWorthy); _;
     }
 
-    modifier bikeOwnerOnly(address _owner) {
+    modifier VehicleOwnerOnly(address _owner) {
         require (msg.sender == _owner);
         _;
     }
 
-    function registerMotorbike(uint _vin, uint _year, string _model, string _make, uint _capacity) public {
-        emit NewBike(_vin, msg.sender);
+    function registerVehicle(uint _vin, uint _year, string _model, string _make, uint _capacity) public {
+        emit NewVehicle(_vin, msg.sender);
         vins.push(_vin);
-        motorbikeMap[_vin] = Bike({
+        VehicleMap[_vin] = Vehicle({
         vin: _vin, year: _year, model: _model, make: _make, owner: msg.sender, buyer: 0, status: Status.RoadWorthy, price: 0, capacity: _capacity
         });
-        numMotorbikes++;
+        numVehicles++;
     }
 
-    function sellBike(uint _vin, uint _price) bikeOwnerOnly(motorbikeMap[_vin].owner) roadWorthy(_vin) public {
+    function sellVehicle(uint _vin, uint _price) VehicleOwnerOnly(VehicleMap[_vin].owner) roadWorthy(_vin) public {
         emit ForSale(_vin);
-        motorbikeMap[_vin].status = Status.ForSale;
-        motorbikeMap[_vin].price = _price;
-        motorbikeMap[_vin].buyer = 0;
+        VehicleMap[_vin].status = Status.ForSale;
+        VehicleMap[_vin].price = _price;
+        VehicleMap[_vin].buyer = 0;
     }
 
-    function buyBike(uint vin) public stopInEmergency forSale(vin) paidEnough(motorbikeMap[vin].price) checkValue(vin) payable {
+    function buyVehicle(uint vin) public stopInEmergency forSale(vin) paidEnough(VehicleMap[vin].price) checkValue(vin) payable {
         emit Sold(vin);
-        motorbikeMap[vin].status = Status.RoadWorthy;
-        motorbikeMap[vin].buyer = msg.sender;
-        address owner = motorbikeMap[vin].owner;
+        VehicleMap[vin].status = Status.RoadWorthy;
+        VehicleMap[vin].buyer = msg.sender;
+        address owner = VehicleMap[vin].owner;
 
         // Transfer ownership across
-        motorbikeMap[vin].owner = msg.sender;
+        VehicleMap[vin].owner = msg.sender;
 
         // send ether to "owner"
         // Take a 5% fee out of the price
-        uint fee = (motorbikeMap[vin].price).mul(SALE_FEE_PERCENT) / 100;
+        uint fee = (VehicleMap[vin].price).mul(SALE_FEE_PERCENT) / 100;
 
         emit Fee(fee);
 
-        owner.transfer((motorbikeMap[vin].price).sub(fee));
+        owner.transfer((VehicleMap[vin].price).sub(fee));
     }
 
-    function transferBike(uint _vin, address _newOwner) bikeOwnerOnly(motorbikeMap[_vin].owner) roadWorthy(_vin) stopInEmergency public returns (string) {
+    function transferVehicle(uint _vin, address _newOwner) VehicleOwnerOnly(VehicleMap[_vin].owner) roadWorthy(_vin) stopInEmergency public returns (string) {
         emit TransferVehicle(_vin);
-        motorbikeMap[_vin].owner = _newOwner;
-        motorbikeMap[_vin].status = Status.RoadWorthy;
+        VehicleMap[_vin].owner = _newOwner;
+        VehicleMap[_vin].status = Status.RoadWorthy;
     }
 
-    /* Fetch bike info by VIN */
-    function fetchBike(uint _vin) public view returns (string model, string make, uint vin, uint year, uint status, uint price, address owner, address buyer, uint capacity) {
-        model = motorbikeMap[_vin].model;
-        make = motorbikeMap[_vin].make;
-        vin = motorbikeMap[_vin].vin;
-        year = motorbikeMap[_vin].year;
-        price = motorbikeMap[_vin].price;
-        status = uint(motorbikeMap[_vin].status);
-        owner = motorbikeMap[_vin].owner;
-        buyer = motorbikeMap[_vin].buyer;
-        capacity = motorbikeMap[_vin].capacity;
+    /* Fetch Vehicle info by VIN */
+    function fetchVehicle(uint _vin) public view returns (string model, string make, uint vin, uint year, uint status, uint price, address owner, address buyer, uint capacity) {
+        model = VehicleMap[_vin].model;
+        make = VehicleMap[_vin].make;
+        vin = VehicleMap[_vin].vin;
+        year = VehicleMap[_vin].year;
+        price = VehicleMap[_vin].price;
+        status = uint(VehicleMap[_vin].status);
+        owner = VehicleMap[_vin].owner;
+        buyer = VehicleMap[_vin].buyer;
+        capacity = VehicleMap[_vin].capacity;
         return (model, make, vin, year, status, price, owner, buyer, capacity);
     }
 
-    function getBikeOwner(uint _vin) public constant returns (address) {
-        address owner = motorbikeMap[_vin].owner;
+    function getVehicleOwner(uint _vin) public constant returns (address) {
+        address owner = VehicleMap[_vin].owner;
         return owner;
     }
 
     function getMake(uint _vin) public constant returns (string) {
-        string storage vmake = motorbikeMap[_vin].make;
+        string storage vmake = VehicleMap[_vin].make;
         return vmake;
     }
 
     function getModel(uint _vin) public constant returns (string) {
-        string storage vmodel = motorbikeMap[_vin].model;
+        string storage vmodel = VehicleMap[_vin].model;
         return vmodel;
     }
 
     function getYear(uint _vin) public constant returns (uint) {
-        uint vyear = motorbikeMap[_vin].year;
+        uint vyear = VehicleMap[_vin].year;
         return vyear;
     }
 
@@ -222,10 +222,8 @@ contract Car_lifeCycle is Owned, CircuitBreaker {
         return vins;
     }
 
-    // Fallback function - Called if other functions don't match call or
-    // sent ether without data
-    // Typically, called when invalid data is sent
-    // Added so ether sent to this contract is reverted if the contract fails
+    
+    // Fallback function Added so ether sent to this contract is reverted if the contract fails
     function() public {
         revert();
     }
