@@ -19,13 +19,5 @@
   "dependencies": {
     "truffle-hdwallet-provider": "0.0.3",
     "zeppelin-solidity": "^1.7.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jackson/car_mart.git"
-  },
-  "bugs": {
-    "url": "https://github.com/jackson/car_mart/issues"
-  },
-  "homepage": "https://github.com/jackson/car_mart#readme"
+  }
 }
